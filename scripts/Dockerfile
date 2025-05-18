@@ -14,7 +14,7 @@
 #       /home/klippy/.config/
 # For more Dockerfile examples with Klipper (and Octoprint) see:
 # https://github.com/sillyfrog/OctoPrint-Klipper-mjpg-Dockerfile
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 RUN apt-get update && \
     apt-get install -y sudo
@@ -33,11 +33,22 @@ WORKDIR /home/klippy
 COPY . klipper/
 USER root
 RUN echo 'klippy ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/klippy && \
-    chown klippy:klippy -R klipper
+    chown klippy:klippy -R klipper && \
+    apt-get update && \
+    apt-get install -y dos2unix && \
+    find /home/klippy/klipper/scripts/ -type f -name "*.sh" -exec dos2unix {} \; && \
+    chmod +x /home/klippy/klipper/scripts/install-ubuntu-22.04.sh
+
 # This is to allow the install script to run without error
 RUN ln -s /bin/true /bin/systemctl
+
 USER klippy
-RUN ./klipper/scripts/install-ubuntu-18.04.sh
+WORKDIR /home/klippy/klipper
+
+# Add debugging to verify file existence and permissions
+RUN ls -la /home/klippy/klipper/scripts/ && \
+    bash /home/klippy/klipper/scripts/install-ubuntu-22.04.sh
+
 # Clean up install script workaround
 RUN sudo rm -f /bin/systemctl
 
