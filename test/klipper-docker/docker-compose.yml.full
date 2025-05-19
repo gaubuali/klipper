@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  klipper:
+    image: klipper:latest
+    privileged: true
+    restart: unless-stopped
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"  # Replace with your printer's serial device
+    volumes:
+      - ./config:/home/klipper/config
+      - ./klipper_logs:/home/klipper/logs
+
+  moonraker:
+    image: ghcr.io/th33xitus/moonraker:latest
+    restart: unless-stopped
+    depends_on:
+      - klipper
+    volumes:
+      - ./config:/home/moonraker/config
+      - ./moonraker_logs:/home/moonraker/logs
+    ports:
+      - "7125:7125"  # Moonraker API
+
+  mainsail:
+    image: ghcr.io/mainsail-crew/mainsail:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"  # Access UI via http://localhost
+    volumes:
+      - ./config:/home/mainsail/config

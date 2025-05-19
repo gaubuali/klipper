@@ -1,0 +1,9 @@
+services:
+  klipper:
+    image: klipper:latest
+    privileged: true
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"  # Replace with your printer's serial device
+    volumes:
+      - ./config:/home/klipper/config
+      - ./klipper_logs:/home/klipper/logs
